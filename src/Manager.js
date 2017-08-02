@@ -203,7 +203,12 @@ class Manager extends TableProps {
         }
         const filter = this.keyAll.filter(k => selectValues.indexOf(k) < 0);
         let checkAll = filter.length === 0;
-        this.setState({selectValues: [].concat(selectValues), checkAll: checkAll});
+        selectValues = [].concat(selectValues);
+        const {onSelected} = this.props;
+        if (typeof onSelected === 'function') {
+            onSelected(selectValues);
+        }
+        this.setState({selectValues, checkAll});
     };
     onSelectAll = (checked) => {
         this.setState({selectValues: checked ? this.keyAll : [], checkAll: checked});

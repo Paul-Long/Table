@@ -57,3 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
+.idea/Table.iml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+package-lock.json

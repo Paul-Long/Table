@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 
 const {Component} = React;
 export default class TableProps extends Component {
+    constructor(props) {
+        super(props);
+    }
     static propTypes = {
         className: PropTypes.string,
         rowKey: PropTypes.string,
@@ -20,8 +23,4 @@ export default class TableProps extends Component {
         sortEnable: PropTypes.bool, // TODO 包含固定列的Table 排序不起作用
         onSortEnd: PropTypes.func
     };
-
-    constructor(props) {
-        super(props);
-    }
 }

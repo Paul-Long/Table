@@ -6,14 +6,50 @@ import {VVG} from './Func';
 const {Component} = React;
 
 class Scroll extends Component {
+    constructor(props) {
+        super(props);
+        this.start = undefined;
+        this.axis = undefined;
+        this.timer = null;
+        this.dragging = null;
+        this.top = props.top || 0;
+        this.state = {
+            pointerEvents: 'none',
+            width: 0,
+            height: 0
+        }
+    }
+
+    componentDidMount() {
+        VVG.bindEvent(this.wrapper.ownerDocument, 'mousedown', this.drag);
+        VVG.bindEvent(this.wrapper.ownerDocument, 'mousemove', this.drag);
+        VVG.bindEvent(this.wrapper.ownerDocument, 'mouseup', this.drag);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.top !== this.props.top) {
+            this.top = nextProps.top;
+        }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.height !== this.props.height
+            || nextProps.sHeight !== this.props.sHeight
+            || nextProps.width !== this.props.width
+            || nextProps.sWidth !== this.props.sWidth
+            || nextProps.top !== this.props.top;
+    }
+
     xWidth = () => {
         const {width, sWidth} = this.props;
         return (width * width) / sWidth;
     };
+
     yHeight = () => {
         const {height, sHeight} = this.props;
         return (height * height) / sHeight;
     };
+
     onRefresh = (top) => {
         const {onRefresh, scrollEndSize} = this.props;
         if (top + this.yHeight() + scrollEndSize > this.wrapper.offsetHeight) {
@@ -22,6 +58,7 @@ class Scroll extends Component {
             }
         }
     };
+
     setTop = (top) => {
         const {sHeight, height} = this.props;
         const yHeight = this.yHeight();
@@ -32,6 +69,7 @@ class Scroll extends Component {
         this.onRefresh(top);
         this.scrollY.style.top = top + 'px';
     };
+
     drag = (event) => {
         event = VVG.getEvent(event);
         const {hTable = [], vTable = [], radio, top = 0, sHeight, height, sWidth, width} = this.props;
@@ -83,7 +121,6 @@ class Scroll extends Component {
                         dragging.style.top = yTop + 'px';
                         this.top = yTop;
                         const value = (yTop - top) * (sHeight - height) / (height - this.scrollY.offsetHeight);
-                        console.log(value);
                         vTable.forEach(t => t['scrollTop'] = value);
                     }
                 }
@@ -110,40 +147,6 @@ class Scroll extends Component {
             event.preventDefault();
         }
     };
-
-    constructor(props) {
-        super(props);
-        this.start = undefined;
-        this.axis = undefined;
-        this.timer = null;
-        this.dragging = null;
-        this.top = props.top || 0;
-        this.state = {
-            pointerEvents: 'none',
-            width: 0,
-            height: 0
-        }
-    }
-
-    componentDidMount() {
-        VVG.bindEvent(this.wrapper.ownerDocument, 'mousedown', this.drag);
-        VVG.bindEvent(this.wrapper.ownerDocument, 'mousemove', this.drag);
-        VVG.bindEvent(this.wrapper.ownerDocument, 'mouseup', this.drag);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.top !== this.props.top) {
-            this.top = nextProps.top;
-        }
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.height !== this.props.height
-            || nextProps.sHeight !== this.props.sHeight
-            || nextProps.width !== this.props.width
-            || nextProps.sWidth !== this.props.sWidth
-            || nextProps.top !== this.props.top;
-    }
 
     render() {
         const {width, sWidth, height, sHeight, top, style} = this.props;

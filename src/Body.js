@@ -12,80 +12,6 @@ class Body extends Component {
     static defaultProps = {
         rowKey: 'id'
     };
-    sortAble = (sortEnable) => {
-        if (this.sort) {
-            this.sort.destroy();
-            this.sort = null;
-        }
-        const el = findDOMNode(this.drag);
-        if (sortEnable) {
-            const {onSortEnd} = this.props;
-            this.sort = Sortable.create(el, {
-                animation: SORT_ANIMATION,
-                onEnd: () => {
-                    const arr = this.sort.toArray();
-                    if (typeof onSortEnd === 'function') {
-                        onSortEnd(arr);
-                    }
-                }
-            });
-        }
-    };
-    reCalcHeight = (prop) => {
-        console.log(` reCalc height ${prop.key} : ${prop.value}`);
-    };
-    onSelect = (value, checked) => {
-        const {onSelect} = this.props;
-        if (typeof onSelect === 'function') {
-            onSelect(value, checked);
-        }
-    };
-    onClick = (value) => {
-        const {onClick} = this.props;
-        if (typeof onClick === 'function') {
-            onClick(value);
-        }
-    };
-    onMouseOver = (key) => {
-        const {onMouseOver} = this.props;
-        if (typeof onMouseOver === 'function') {
-            onMouseOver(key);
-        }
-    };
-    onMouseOut = (key) => {
-        const {onMouseOut} = this.props;
-        if (typeof onMouseOut === 'function') {
-            onMouseOut(key);
-        }
-    };
-    renderTrs = () => {
-        const {rowKey, fixed, rowHeight, selectMulti, selectValues = [], hoverRow, clickRow} = this.props;
-        const columns = this.props.columns || [];
-        const data = this.props.data || [];
-        return data.map((d, i) => {
-            const k = getKeyData(rowKey.split('.'), d);
-            return (
-                <Row
-                    key={k}
-                    dataId={k}
-                    columns={columns}
-                    rowData={d}
-                    hovered={k === hoverRow}
-                    clicked={k === clickRow}
-                    currentIndex={i}
-                    rowHeight={rowHeight}
-                    fixed={fixed}
-                    selectMulti={selectMulti}
-                    reCalcHeight={this.reCalcHeight}
-                    checked={selectValues.indexOf(k) > -1}
-                    onSelect={(checked) => this.onSelect(k, checked)}
-                    onMouseOver={this.onMouseOver.bind(this, k)}
-                    onMouseOut={this.onMouseOut.bind(this, k)}
-                    onClick={() => this.onClick(k)}
-                />
-            )
-        })
-    };
 
     componentDidMount() {
         const {refFunc, fixedHeader} = this.props;
@@ -119,8 +45,88 @@ class Body extends Component {
             || nextProps.columns !== this.props.columns;
     }
 
+    sortAble = (sortEnable) => {
+        if (this.sort) {
+            this.sort.destroy();
+            this.sort = null;
+        }
+        const el = findDOMNode(this.drag);
+        if (sortEnable) {
+            const {onSortEnd} = this.props;
+            this.sort = Sortable.create(el, {
+                animation: SORT_ANIMATION,
+                onEnd: () => {
+                    const arr = this.sort.toArray();
+                    if (typeof onSortEnd === 'function') {
+                        onSortEnd(arr);
+                    }
+                }
+            });
+        }
+    };
+
+    reCalcHeight = (prop) => {
+        console.log(` reCalc height ${prop.key} : ${prop.value}`);
+    };
+
+    onSelect = (value, checked) => {
+        const {onSelect} = this.props;
+        if (typeof onSelect === 'function') {
+            onSelect(value, checked);
+        }
+    };
+
+    onClick = (value) => {
+        const {onClick} = this.props;
+        if (typeof onClick === 'function') {
+            onClick(value);
+        }
+    };
+
+    onMouseOver = (key) => {
+        const {onMouseOver} = this.props;
+        if (typeof onMouseOver === 'function') {
+            onMouseOver(key);
+        }
+    };
+    onMouseOut = (key) => {
+        const {onMouseOut} = this.props;
+        if (typeof onMouseOut === 'function') {
+            onMouseOut(key);
+        }
+    };
+
+    renderTrs = () => {
+        const {rowKey, fixed, rowHeight, selectMulti, selectValues = [], hoverRow, clickRow} = this.props;
+        const columns = this.props.columns || [];
+        const data = this.props.data || [];
+        return data.map((d, i) => {
+            const k = getKeyData(rowKey.split('.'), d);
+            return (
+                <Row
+                    key={k}
+                    dataId={k}
+                    columns={columns}
+                    rowData={d}
+                    hovered={k === hoverRow}
+                    clicked={k === clickRow}
+                    currentIndex={i}
+                    rowHeight={rowHeight}
+                    fixed={fixed}
+                    selectMulti={selectMulti}
+                    reCalcHeight={this.reCalcHeight}
+                    checked={selectValues.indexOf(k) > -1}
+                    onSelect={(checked) => this.onSelect(k, checked)}
+                    onMouseOver={this.onMouseOver.bind(this, k)}
+                    onMouseOut={this.onMouseOut.bind(this, k)}
+                    onClick={() => this.onClick(k)}
+                />
+            )
+        })
+    };
+
     render() {
-        const {fixedHeader} = this.props;
+        const {fixedHeader, width} = this.props;
         const height = this.props.height || '100%';
         const table = (
             <table ref={r => this.content = r} style={{width: this.props.width}}>
@@ -136,7 +142,7 @@ class Body extends Component {
             <div
                 ref={r => this.body = r}
                 className='rs-tbody'
-                style={{height}}
+                style={{height, width}}
             >
                 {table}
             </div>

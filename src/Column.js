@@ -6,6 +6,11 @@ import {TABLE_SPACE_TD} from './Config';
 const {Component} = React;
 
 class Column extends Component {
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.data !== this.props.data
+            || nextProps.width !== this.props.width;
+    }
+
     renderChildren = () => {
         const {render, data, columnKey} = this.props;
         if (typeof render === 'function') {
@@ -17,11 +22,6 @@ class Column extends Component {
         const keys = columnKey.split('.');
         return getKeyData(keys, data);
     };
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.data !== this.props.data
-            || nextProps.width !== this.props.width;
-    }
 
     render() {
         const {className = '', height, tdSpace, width, style} = this.props;

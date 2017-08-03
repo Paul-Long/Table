@@ -5,23 +5,6 @@ import TableHeader from './Header';
 import TableBody from './Body';
 
 class TableSimple extends TableProps {
-    calcWidth = (columns, width = 0) => {
-        const {fixed} = this.props;
-        columns.forEach(c => (c.fixed === fixed) && (width += c.width));
-        return width;
-    };
-    getClassName = () => {
-        const {fixed} = this.props;
-        return fixed ? `rs-table-fixed-${fixed}` : '';
-    };
-    refFunc = (refs) => {
-        const {refFunc} = this.props;
-        if (typeof refFunc === 'function') {
-            this.contens = Object.assign({}, this.contens, refs);
-            refFunc(this.contens);
-        }
-    };
-
     constructor(props) {
         super(props);
         this.contens = {};
@@ -43,6 +26,25 @@ class TableSimple extends TableProps {
             || nextProps.hoverRow !== this.props.hoverRow
             || nextProps.selectValues !== this.props.selectValues;
     }
+
+    calcWidth = (columns, width = 0) => {
+        const {fixed} = this.props;
+        columns.forEach(c => (c.fixed === fixed) && (width += c.width));
+        return width;
+    };
+
+    getClassName = () => {
+        const {fixed} = this.props;
+        return fixed ? `rs-table-fixed-${fixed}` : '';
+    };
+
+    refFunc = (refs) => {
+        const {refFunc} = this.props;
+        if (typeof refFunc === 'function') {
+            this.contens = Object.assign({}, this.contens, refs);
+            refFunc(this.contens);
+        }
+    };
 
     render() {
         const {

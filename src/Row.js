@@ -7,9 +7,18 @@ import {SELECT_KEY, TABLE_SPACE_TD} from './Config';
 const {Component} = React;
 
 class Row extends Component {
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.rowData !== this.props.rowData
+            || nextProps.clicked !== this.props.clicked
+            || nextProps.columns !== this.props.columns
+            || nextProps.checked !== this.props.checked
+            || nextProps.hovered !== this.props.hovered;
+    }
+
     handleClick = () => {
 
     };
+
     renderColumn = (columns, arr = []) => {
         columns.forEach(col => {
             const {key, tdSpace, children = [], width, render} = col;
@@ -43,13 +52,6 @@ class Row extends Component {
         return arr;
     };
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.rowData !== this.props.rowData
-            || nextProps.clicked !== this.props.clicked
-            || nextProps.columns !== this.props.columns
-            || nextProps.checked !== this.props.checked
-            || nextProps.hovered !== this.props.hovered;
-    }
 
     render() {
         const {onMouseOver, onMouseOut, hovered, clicked, columns = [], fixed} = this.props;

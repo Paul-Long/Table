@@ -6,15 +6,39 @@ import {HEADER_HEIGHT, SELECT_KEY} from './Config';
 const {Component} = React;
 
 class HeaderColumn extends Component {
+    constructor(props) {
+        super(props);
+        this.start = undefined;
+        this.state = {
+            checked: props.checkAll
+        }
+    }
+
     static defaultProps = {
         thSpace: 'left'
     };
+
+    componentDidMount() {
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.checkAll !== this.props.checkAll) {
+            this.setState({checked: nextProps.checkAll});
+        }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.colData !== this.props.colData
+            || nextState.checked !== this.state.checked;
+    }
+
     onDown = (indexKey) => {
         const {onDown} = this.props;
         if (typeof onDown === 'function') {
             onDown(indexKey);
         }
     };
+
     handleChange = () => {
         const {onCheckAll} = this.props;
         const {checked} = this.state;
@@ -23,6 +47,7 @@ class HeaderColumn extends Component {
             onCheckAll(!checked)
         }
     };
+
     renderTh = (colData = {}, isTopOne = true, isLeftOne = true) => {
         const style = {
             ...colData.style,
@@ -68,28 +93,6 @@ class HeaderColumn extends Component {
         }
         return ele;
     };
-
-    constructor(props) {
-        super(props);
-        this.start = undefined;
-        this.state = {
-            checked: props.checkAll
-        }
-    }
-
-    componentDidMount() {
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.checkAll !== this.props.checkAll) {
-            this.setState({checked: nextProps.checkAll});
-        }
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.colData !== this.props.colData
-            || nextState.checked !== this.state.checked;
-    }
 
     render() {
         const {className = '', colData} = this.props;

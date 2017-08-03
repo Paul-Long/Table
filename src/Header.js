@@ -5,6 +5,18 @@ import HeaderColumn from './HeaderColumn';
 const {Component} = React;
 
 class Header extends Component {
+    componentDidMount() {
+        const {refFunc} = this.props;
+        if (typeof refFunc === 'function') {
+            refFunc({header: this.header});
+        }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.columns !== this.props.columns
+            || nextProps.checkAll !== this.props.checkAll;
+    }
+
     renderCol = () => {
         const {columns, selectMulti} = this.props;
         const cols = columns.filter(col => col.fixed === this.props.fixed);
@@ -19,18 +31,6 @@ class Header extends Component {
             />
         ));
     };
-
-    componentDidMount() {
-        const {refFunc} = this.props;
-        if (typeof refFunc === 'function') {
-            refFunc({header: this.header});
-        }
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.columns !== this.props.columns
-            || nextProps.checkAll !== this.props.checkAll;
-    }
 
     render() {
         const {width} = this.props;

@@ -5,6 +5,10 @@ import {Checkbox, Radio} from 'antd';
 const {Component} = React;
 
 class SelectColumn extends Component {
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.checked !== this.props.checked;
+    }
+
     renderCheckbox = () => {
         return (
             <Checkbox
@@ -13,6 +17,7 @@ class SelectColumn extends Component {
             />
         )
     };
+
     renderRadio = () => {
         return (
             <Radio
@@ -21,16 +26,13 @@ class SelectColumn extends Component {
             />
         )
     };
+
     onChange = () => {
         const {onSelect} = this.props;
         if (typeof onSelect === 'function') {
             onSelect(!this.props.checked);
         }
     };
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.checked !== this.props.checked;
-    }
 
     render() {
         const {height, selectMulti} = this.props;

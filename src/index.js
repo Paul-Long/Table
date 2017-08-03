@@ -8,33 +8,6 @@ import TablePagination from './TablePagination';
 import './style/index.less';
 
 class Table extends TableProps {
-    onRefresh = () => {
-        const {pagination = {}, isScroll} = this.props;
-        if (!isScroll) return;
-        const {current, pageSize, total, onChange} = pagination;
-        if (current < Math.ceil(total / pageSize) && typeof onChange === 'function') {
-            onChange(current + 1, pageSize);
-        }
-    };
-    onWheel = (size) => {
-        this.scrollY.setTop(size);
-    };
-    onResize = (scroll) => {
-        this.setState(scroll);
-    };
-    renderPagination = () => {
-        const {isPage, isScroll} = this.props;
-        if (!isPage) return '';
-        if (isScroll) return '';
-        return (
-            <TablePagination
-                {...this.props.pagination}
-                height={this.state.paginationHeight}
-                isScroll={this.props.isScroll}
-            />
-        )
-    };
-
     constructor(props) {
         super(props);
         this.columns = props.columns || [];
@@ -83,6 +56,36 @@ class Table extends TableProps {
             || nextProps.data !== this.props.data
             || nextProps.pagination !== this.props.pagination;
     }
+
+    onRefresh = () => {
+        const {pagination = {}, isScroll} = this.props;
+        if (!isScroll) return;
+        const {current, pageSize, total, onChange} = pagination;
+        if (current < Math.ceil(total / pageSize) && typeof onChange === 'function') {
+            onChange(current + 1, pageSize);
+        }
+    };
+
+    onWheel = (size) => {
+        this.scrollY.setTop(size);
+    };
+
+    onResize = (scroll) => {
+        this.setState(scroll);
+    };
+
+    renderPagination = () => {
+        const {isPage, isScroll} = this.props;
+        if (!isPage) return '';
+        if (isScroll) return '';
+        return (
+            <TablePagination
+                {...this.props.pagination}
+                height={this.state.paginationHeight}
+                isScroll={this.props.isScroll}
+            />
+        )
+    };
 
     render() {
         let {...props} = this.props;

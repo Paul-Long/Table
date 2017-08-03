@@ -7,9 +7,62 @@ import {TABLE_SPACE_TD} from './Config';
 import {getKeyData, maxBy, resetColumn, setRow, VVG} from './Func';
 
 class Manager extends TableProps {
+    constructor(props) {
+        super(props);
+        let selectValues = [];
+        let columns = resetColumn(props.columns || []);
+        this.rowSpan = maxBy(columns, 'row');
+        columns = setRow(columns, this.rowSpan);
+        if (props.selectEnable) {
+            selectValues = props.selectValues || [];
+        }
+        this.hoverTimer = null;
+        const data = props.data || [];
+        this.keyAll = data.map(d => getKeyData(props.rowKey.split('.'), d));
+
+        this.tables = {};
+        this.tableSize = {
+            left: {width: 0, height: 0},
+            center: {width: 0, height: 0},
+            right: {width: 0, height: 0}
+        };
+
+        this.dragging = null;
+        this.dragKey = null;
+        this.dragStart = null;
+
+        this.state = {
+            selectValues,
+            hoverRow: undefined,
+            clickRow: undefined,
+            checkAll: false,
+            columns: this.resetTableSize(columns)
+        };
+    }
+
     static defaultProps = {
         fixed: []
     };
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.data !== this.props.data
+            || nextState.clickRow !== this.state.clickRow
+            || nextState.checkAll !== this.state.checkAll
+            || nextState.hoverRow !== this.state.hoverRow
+            || nextState.selectValues !== this.state.selectValues
+            || nextState.columns !== this.state.columns;
+    }
+
+    componentDidMount() {
+        this.onWindowResize();
+        const ownerDocument = this.dom.ownerDocument;
+        VVG.onWheel(ownerDocument, this.onWheel);
+        VVG.bindEvent(ownerDocument, 'mousedown', this.drag);
+        VVG.bindEvent(ownerDocument, 'mousemove', this.drag);
+        VVG.bindEvent(ownerDocument, 'mouseup', this.drag);
+        VVG.bindEvent(window, 'resize', this.onWindowResize);
+    }
+
     onWindowResize = () => {
         const self = findDOMNode(this.dom);
         if (this.timer) {
@@ -28,6 +81,7 @@ class Manager extends TableProps {
             this.timer = null;
         }, 200);
     };
+
     setColumns = (columns = [], indexKey, width) => {
         return columns.map(col => {
             let children = col.children || [];
@@ -46,11 +100,13 @@ class Manager extends TableProps {
             return Object.assign({}, col);
         });
     };
+
     handleColumnReady = (prop) => {
         if (!prop.width) return;
         const columns = this.setColumns(this.state.columns, prop.indexKey, prop.width);
         this.setState({columns: this.resetTableSize(columns)});
     };
+
     resetTableSize = (columns = []) => {
         let center = 0, left = 0, right = 0, lastWidth = 0;
         columns.forEach(col => {
@@ -83,6 +139,7 @@ class Manager extends TableProps {
         this.calcScroll(center);
         return columns;
     };
+
     calcScroll = (center) => {
         const cTable = this.tables.center;
         const {onResize, fixedHeader} = this.props;
@@ -114,6 +171,7 @@ class Manager extends TableProps {
             onResize({vScroll, hScroll});
         }
     };
+
     drag = (event) => {
         event = VVG.getEvent(event);
         switch (event.type) {
@@ -154,6 +212,7 @@ class Manager extends TableProps {
             event.preventDefault();
         }
     };
+
     onWheel = (e) => {
         const {fixedHeader, onWheel} = this.props;
         const scrollMoveSize = 20;
@@ -187,6 +246,7 @@ class Manager extends TableProps {
             onWheel(moveSize);
         }
     };
+
     onSelect = (value, checked) => {
         const isMove = (this.dragging && this.dragKey);
         if (isMove) return;
@@ -210,9 +270,11 @@ class Manager extends TableProps {
         }
         this.setState({selectValues, checkAll});
     };
+
     onSelectAll = (checked) => {
         this.setState({selectValues: checked ? this.keyAll : [], checkAll: checked});
     };
+
     onMouseOver = (key) => {
         const isMove = (this.dragging && this.dragKey);
         if (isMove) return;
@@ -222,6 +284,7 @@ class Manager extends TableProps {
         }
         this.setState({hoverRow: key});
     };
+
     onMouseOut = () => {
         const isMove = (this.dragging && this.dragKey);
         if (isMove) return;
@@ -233,6 +296,7 @@ class Manager extends TableProps {
             }
         }, 200);
     };
+
     onClick = (value) => {
         const isMove = (this.dragging && this.dragKey);
         if (isMove) return;
@@ -243,6 +307,7 @@ class Manager extends TableProps {
             this.setState({clickRow: undefined});
         }
     };
+
     getTableProps = () => {
         const {
             rowKey, data, fixedHeader, rowHeight, selectMulti, selectEnable, headerHeight,
@@ -265,6 +330,7 @@ class Manager extends TableProps {
             onClick: this.onClick
         }
     };
+
     renderLeftFixed = () => {
         const fixed = this.props.fixed || [];
         if (fixed.indexOf('left') > -1) {
@@ -280,6 +346,7 @@ class Manager extends TableProps {
             )
         }
     };
+
     renderRightFixed = () => {
         const fixed = this.props.fixed || [];
         if (fixed.indexOf('right') > -1) {
@@ -294,61 +361,10 @@ class Manager extends TableProps {
             )
         }
     };
+
     refFunc = (key, refs) => {
         this.tables[key] = refs;
     };
-
-    constructor(props) {
-        super(props);
-        let selectValues = [];
-        let columns = resetColumn(props.columns || []);
-        this.rowSpan = maxBy(columns, 'row');
-        columns = setRow(columns, this.rowSpan);
-        if (props.selectEnable) {
-            selectValues = props.selectValues || [];
-        }
-        this.hoverTimer = null;
-        const data = props.data || [];
-        this.keyAll = data.map(d => getKeyData(props.rowKey.split('.'), d));
-
-        this.tables = {};
-        this.tableSize = {
-            left: {width: 0, height: 0},
-            center: {width: 0, height: 0},
-            right: {width: 0, height: 0}
-        };
-
-        this.dragging = null;
-        this.dragKey = null;
-        this.dragStart = null;
-
-        this.state = {
-            selectValues,
-            hoverRow: undefined,
-            clickRow: undefined,
-            checkAll: false,
-            columns: this.resetTableSize(columns)
-        };
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.data !== this.props.data
-            || nextState.clickRow !== this.state.clickRow
-            || nextState.checkAll !== this.state.checkAll
-            || nextState.hoverRow !== this.state.hoverRow
-            || nextState.selectValues !== this.state.selectValues
-            || nextState.columns !== this.state.columns;
-    }
-
-    componentDidMount() {
-        this.onWindowResize();
-        const ownerDocument = this.dom.ownerDocument;
-        VVG.onWheel(ownerDocument, this.onWheel);
-        VVG.bindEvent(ownerDocument, 'mousedown', this.drag);
-        VVG.bindEvent(ownerDocument, 'mousemove', this.drag);
-        VVG.bindEvent(ownerDocument, 'mouseup', this.drag);
-        VVG.bindEvent(window, 'resize', this.onWindowResize);
-    }
 
     render() {
         let props = {

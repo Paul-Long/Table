@@ -27,7 +27,8 @@
 .rs-table {
   table-layout: fixed;
   overflow: hidden;
-  display: inline-grid;
+  display: flex;
+  flex-direction: column;
   border: 0;
 }
 
@@ -62,7 +63,6 @@
   border-right: 1px solid #C8CBCE;
   border-bottom: 1px solid #C8CBCE;
 }
-
 .rs-th {
   position: relative;
   background-color: inherit;
@@ -96,7 +96,6 @@
   border-right-color: #C8CBCE;
   border-bottom-color: #C8CBCE;
 }
-
 .rs-td {
   background-color: inherit;
   min-width: 50px;

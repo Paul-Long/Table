@@ -41,7 +41,6 @@ class Column extends Component {
         if (width === 0) {
             css.display = 'none';
         }
-        console.log(height);
         return (
             <td className={`rs-td ${className}`} style={css}>
                 <div className='rs-td-content'

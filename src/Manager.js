@@ -375,7 +375,9 @@ class Manager extends TableProps {
             className: 'rs-table-manager',
             ref: r => this.dom = r
         };
-        if (!this.props.isScroll) {
+        const pagination = this.props.pagination || {};
+        const total = pagination.total || 0;
+        if (!this.props.isScroll && total > 0) {
             props.className += ' rs-has-pagination';
         }
         const tableProps = this.getTableProps();

@@ -46,7 +46,9 @@ class Table extends TableProps {
 
     componentDidMount() {
         const isScroll = this.props.isScroll;
-        const paginationHeight = isScroll ? 0 : TableConfig.PAGINATION_HEIGHT;
+        const pagination = this.props.pagination || {};
+        const total = pagination.total || 0;
+        const paginationHeight = isScroll || total === 0 ? 0 : TableConfig.PAGINATION_HEIGHT;
         this.setState({paginationHeight});
     }
 

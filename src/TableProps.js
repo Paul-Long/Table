@@ -21,6 +21,7 @@ export default class TableProps extends Component {
         onSelected: PropTypes.func,
         height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         sortEnable: PropTypes.bool, // TODO 包含固定列的Table 排序不起作用
-        onSortEnd: PropTypes.func
+        onSortEnd: PropTypes.func,
+        getRowCount: PropTypes.func
     };
 }

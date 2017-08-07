@@ -133,5 +133,6 @@ Table.defaultProps = {
     isPage: TableConfig.IS_PAGE,
     pagination: TableConfig.PAGINATION_OPTION,
     isScroll: TableConfig.PAGINATION_SCROLL,
-    sortEnable: TableConfig.SORT_ENABLE
+    sortEnable: TableConfig.SORT_ENABLE,
+    rowKey: 'id'
 };

@@ -97,11 +97,15 @@ class Body extends Component {
     };
 
     renderTrs = () => {
-        const {rowKey, fixed, rowHeight, selectMulti, selectValues = [], hoverRow, clickRow} = this.props;
+        const {rowKey, fixed, rowHeight, selectMulti, selectValues = [], hoverRow, clickRow, getRowCount} = this.props;
         const columns = this.props.columns || [];
         const data = this.props.data || [];
         return data.map((d, i) => {
             const k = getKeyData(rowKey.split('.'), d);
+            let row = 1;
+            if (typeof getRowCount === 'function') {
+                row = getRowCount(d, i);
+            }
             return (
                 <Row
                     key={k}
@@ -111,7 +115,7 @@ class Body extends Component {
                     hovered={k === hoverRow}
                     clicked={k === clickRow}
                     currentIndex={i}
-                    rowHeight={rowHeight}
+                    rowHeight={rowHeight * row}
                     fixed={fixed}
                     selectMulti={selectMulti}
                     reCalcHeight={this.reCalcHeight}
@@ -172,5 +176,6 @@ Body.propTypes = {
     clickRow: PropTypes.string,
     fixedHeader: PropTypes.bool,
     sortEnable: PropTypes.bool,
-    onSortEnd: PropTypes.func
+    onSortEnd: PropTypes.func,
+    getRowCount: PropTypes.func
 };

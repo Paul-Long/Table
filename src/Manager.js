@@ -63,6 +63,30 @@ class Manager extends TableProps {
         VVG.bindEvent(window, 'resize', this.onWindowResize);
     }
 
+    getTableProps = () => {
+        const {
+            rowKey, data, fixedHeader, rowHeight, selectMulti, selectEnable, headerHeight,
+            sortEnable, onSortEnd, getRowCount
+        } = this.props;
+        const {selectValues, hoverRow, clickRow, checkAll, columns} = this.state;
+        const tableBaseProps = {
+            columns, data, rowKey, fixedHeader, rowHeight, getRowCount,
+            selectMulti, selectValues, selectEnable,
+            checkAll, hoverRow, clickRow,
+            sortEnable: this.props.fixed.length === 0 && sortEnable, onSortEnd,
+            headerHeight: headerHeight * this.rowSpan,
+            height: this.height
+        };
+        return {
+            ...tableBaseProps,
+            onSelect: this.onSelect,
+            onMouseOver: this.onMouseOver,
+            onMouseOut: this.onMouseOut,
+            onClick: this.onClick,
+            onCheckAll: this.onSelectAll
+        }
+    };
+
     onWindowResize = () => {
         const self = findDOMNode(this.dom);
         if (this.timer) {
@@ -308,28 +332,9 @@ class Manager extends TableProps {
         }
     };
 
-    getTableProps = () => {
-        const {
-            rowKey, data, fixedHeader, rowHeight, selectMulti, selectEnable, headerHeight,
-            sortEnable, onSortEnd
-        } = this.props;
-        const {selectValues, hoverRow, clickRow, checkAll, columns} = this.state;
-        const tableBaseProps = {
-            columns, data, rowKey, fixedHeader, rowHeight,
-            selectMulti, selectValues, selectEnable,
-            checkAll, hoverRow, clickRow,
-            sortEnable: this.props.fixed.length === 0 && sortEnable, onSortEnd,
-            headerHeight: headerHeight * this.rowSpan,
-            height: this.height
-        };
-        return {
-            ...tableBaseProps,
-            onSelect: this.onSelect,
-            onMouseOver: this.onMouseOver,
-            onMouseOut: this.onMouseOut,
-            onClick: this.onClick
-        }
-    };
+    componentDidUpdate() {
+        this.resetTableSize(this.state.columns);
+    }
 
     renderLeftFixed = () => {
         const fixed = this.props.fixed || [];
@@ -341,7 +346,6 @@ class Manager extends TableProps {
                     refFunc={refs => this.refFunc('left', refs)}
                     fixed='left'
                     {...tableProps}
-                    onCheckAll={this.onSelectAll}
                 />
             )
         }

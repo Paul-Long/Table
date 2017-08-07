@@ -50,7 +50,7 @@ class TableSimple extends TableProps {
         const {
             rowKey, data, columns, height, hoverRow, onMouseOver, onMouseOut,
             headerHeight, fixed, width, selectEnable, selectMulti, selectValues, onClick, clickRow,
-            checkAll, fixedHeader,
+            checkAll, fixedHeader, getRowCount,
             sortEnable, onSortEnd
         } = this.props;
         const props = {
@@ -87,6 +87,7 @@ class TableSimple extends TableProps {
                     clickRow={clickRow}
                     sortEnable={sortEnable}
                     onSortEnd={onSortEnd}
+                    getRowCount={getRowCount}
                 />
             </div>
         )

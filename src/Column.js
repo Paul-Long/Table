@@ -23,14 +23,25 @@ class Column extends Component {
         return getKeyData(keys, data);
     };
 
+
+    getSpace = (space = 'center') => {
+        switch (space) {
+            case 'left':
+                return 'flex-start';
+            case 'right':
+                return 'flex-end';
+            case 'center':
+                return 'center';
+        }
+    };
+
     render() {
         const {className = '', height, tdSpace, width, style} = this.props;
-        const css = {
-            textAlign: tdSpace
-        };
+        const css = {};
         if (width === 0) {
             css.display = 'none';
         }
+        console.log(height);
         return (
             <td className={`rs-td ${className}`} style={css}>
                 <div className='rs-td-content'
@@ -38,6 +49,7 @@ class Column extends Component {
                          ...style,
                          width,
                          height,
+                         justifyContent: this.getSpace(tdSpace),
                          lineHeight: `${height}px`
                      }}
                 >

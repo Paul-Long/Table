@@ -20,3 +20,4 @@ export const PAGINATION_OPTION = {
 export const PAGINATION_SCROLL = false;
 export const SORT_ENABLE = false;
 export const SORT_ANIMATION = 100;
+export const HEADER_RESIZE_ENABLE = true;

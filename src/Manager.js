@@ -66,11 +66,11 @@ class Manager extends TableProps {
     getTableProps = () => {
         const {
             rowKey, data, fixedHeader, rowHeight, selectMulti, selectEnable, headerHeight,
-            sortEnable, onSortEnd, getRowCount
+            sortEnable, onSortEnd, getRowCount, headerResizeEnable
         } = this.props;
         const {selectValues, hoverRow, clickRow, checkAll, columns} = this.state;
         const tableBaseProps = {
-            columns, data, rowKey, fixedHeader, rowHeight, getRowCount,
+            columns, data, rowKey, fixedHeader, rowHeight, getRowCount, headerResizeEnable,
             selectMulti, selectValues, selectEnable,
             checkAll, hoverRow, clickRow,
             sortEnable: this.props.fixed.length === 0 && sortEnable, onSortEnd,

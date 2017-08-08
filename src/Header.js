@@ -18,7 +18,7 @@ class Header extends Component {
     }
 
     renderCol = () => {
-        const {columns, selectMulti} = this.props;
+        const {columns, selectMulti, headerResizeEnable} = this.props;
         const cols = columns.filter(col => col.fixed === this.props.fixed);
         return cols.map(col => (
             <HeaderColumn
@@ -28,6 +28,7 @@ class Header extends Component {
                 onCheckAll={this.props.onCheckAll}
                 checkAll={this.props.checkAll}
                 onDown={this.props.onDown}
+                headerResizeEnable={headerResizeEnable}
             />
         ));
     };
@@ -57,5 +58,6 @@ Header.propTypes = {
     selectEnable: PropTypes.bool,
     selectMulti: PropTypes.bool,
     onCheckAll: PropTypes.func,
-    checkAll: PropTypes.bool
+    checkAll: PropTypes.bool,
+    headerResizeEnable: PropTypes.bool
 };

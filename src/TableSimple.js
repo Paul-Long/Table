@@ -50,7 +50,7 @@ class TableSimple extends TableProps {
         const {
             rowKey, data, columns, height, hoverRow, onMouseOver, onMouseOut,
             headerHeight, fixed, width, selectEnable, selectMulti, selectValues, onClick, clickRow,
-            checkAll, fixedHeader, getRowCount,
+            checkAll, fixedHeader, getRowCount, headerResizeEnable,
             sortEnable, onSortEnd
         } = this.props;
         const props = {
@@ -71,6 +71,7 @@ class TableSimple extends TableProps {
                     onDown={this.props.onDown}
                     onCheckAll={this.props.onCheckAll}
                     checkAll={checkAll}
+                    headerResizeEnable={headerResizeEnable}
                 />
                 <TableBody
                     {...props}

@@ -49,6 +49,7 @@ class HeaderColumn extends Component {
     };
 
     renderTh = (colData = {}, isTopOne = true, isLeftOne = true) => {
+        const {headerResizeEnable} = this.props;
         const style = {
             ...colData.style,
             height: HEADER_HEIGHT * colData.rowSpan,
@@ -77,7 +78,7 @@ class HeaderColumn extends Component {
                 className='rs-th-item rs-th-content'
             >
                 {colData.title}
-                {children.length === 0 ? resizeEle : ''}
+                {children.length === 0 && headerResizeEnable ? resizeEle : ''}
             </div>
         );
         if (children.length > 0) {
@@ -126,5 +127,6 @@ HeaderColumn.propTypes = {
     selectMulti: PropTypes.bool,
     onCheckAll: PropTypes.func,
     checkAll: PropTypes.bool,
-    colData: PropTypes.object
+    colData: PropTypes.object,
+    headerResizeEnable: PropTypes.bool
 };

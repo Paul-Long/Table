@@ -136,5 +136,6 @@ Table.defaultProps = {
     pagination: TableConfig.PAGINATION_OPTION,
     isScroll: TableConfig.PAGINATION_SCROLL,
     sortEnable: TableConfig.SORT_ENABLE,
-    rowKey: 'id'
+    rowKey: 'id',
+    headerResizeEnable: TableConfig.HEADER_RESIZE_ENABLE
 };

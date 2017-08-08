@@ -19,6 +19,7 @@ export default class TableProps extends Component {
         selectMulti: PropTypes.bool,
         selectValues: PropTypes.array,
         onSelected: PropTypes.func,
+        headerResizeEnable: PropTypes.bool,
         height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         sortEnable: PropTypes.bool, // TODO 包含固定列的Table 排序不起作用
         onSortEnd: PropTypes.func,

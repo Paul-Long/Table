@@ -1,4 +1,4 @@
-import {HEADER_DEFAULT_WIDTH, MIN_WIDTH, TABLE_SPACE_TD} from './Config';
+import {COL_KEY, HEADER_DEFAULT_WIDTH, MIN_WIDTH, TABLE_SPACE_TD} from './Config';
 
 export const getKeyData = (keys, obj, index = 0) => {
     const k = keys[index];
@@ -32,10 +32,12 @@ export const resetColumn = (columns = [], layer = 1) => {
         } else {
             col.width = col.width || HEADER_DEFAULT_WIDTH;
             col.minWidth = col.minWidth || MIN_WIDTH;
-            if (col.key === TABLE_SPACE_TD) {
+            if (col[COL_KEY] === TABLE_SPACE_TD) {
                 col.minWidth = 0;
             }
             col.colSpan = 1;
+            col.tdSpace = col.tdSpace || col.place || 'center';
+            col.thSpace = col.thSpace || col.place || 'center';
         }
         return col;
     })

@@ -8,25 +8,26 @@ import TablePagination from './TablePagination';
 import './style/index.less';
 
 class Table extends TableProps {
-    constructor(props) {
-        super(props);
-        this.columns = props.columns || [];
-        const hasSelect = this.columns.filter(c => c.key === TableConfig.SELECT_KEY);
-        const hasSpaceTd = this.columns.filter(c => c.key === TableConfig.TABLE_SPACE_TD);
+    initColumns = (props = {}) => {
+        const hasSelect = this.columns.filter(c => c[TableConfig.COL_KEY] === TableConfig.SELECT_KEY);
+        const hasSpaceTd = this.columns.filter(c => c[TableConfig.COL_KEY] === TableConfig.TABLE_SPACE_TD);
         const fixed = this.columns.filter(c => c.fixed === 'left' || c.fixed === 'right');
         if (props.selectEnable && hasSelect && hasSelect.length === 0) {
-            this.columns.unshift({
-                key: TableConfig.SELECT_KEY,
+            const selectCol = {
                 title: '',
                 width: 50,
                 minWidth: 50,
                 maxWidth: 50,
                 fixed: fixed.length > 0 ? 'left' : undefined,
                 thSpace: 'center'
-            });
+            };
+            selectCol[TableConfig.COL_KEY] = TableConfig.SELECT_KEY;
+            this.columns.unshift(selectCol);
         }
         if (hasSpaceTd && hasSpaceTd.length === 0) {
-            this.columns.push({key: TableConfig.TABLE_SPACE_TD, title: '', width: 0, minWidth: 0});
+            const spaceCol = {title: '', width: 0, minWidth: 0};
+            spaceCol[TableConfig.COL_KEY] = TableConfig.TABLE_SPACE_TD;
+            this.columns.push(spaceCol);
         }
         this.fixed = [];
         this.columns.forEach(c => {
@@ -34,6 +35,20 @@ class Table extends TableProps {
                 this.fixed.push(c.fixed);
             }
         });
+    };
+
+    componentDidMount() {
+        const isScroll = this.props.isScroll;
+        const pagination = this.props.pagination || {};
+        const total = pagination.total || 0;
+        const paginationHeight = isScroll || total === 0 ? 0 : TableConfig.PAGINATION_HEIGHT;
+        this.setState({paginationHeight});
+    }
+
+    constructor(props) {
+        super(props);
+        this.columns = props.columns || [];
+        this.initColumns(props);
         const pagination = props.pagination || {};
         const current = pagination.current || 1;
         this.state = {
@@ -44,18 +59,18 @@ class Table extends TableProps {
         };
     }
 
-    componentDidMount() {
-        const isScroll = this.props.isScroll;
-        const pagination = this.props.pagination || {};
-        const total = pagination.total || 0;
-        const paginationHeight = isScroll || total === 0 ? 0 : TableConfig.PAGINATION_HEIGHT;
-        this.setState({paginationHeight});
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.columns !== this.props.columns) {
+            this.columns = nextProps.columns || [];
+            this.initColumns(this.props);
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
         return nextState.hScroll !== this.state.hScroll
             || nextState.vScroll !== this.state.vScroll
             || nextProps.data !== this.props.data
+            || nextProps.columns !== this.props.columns
             || nextProps.pagination !== this.props.pagination;
     }
 

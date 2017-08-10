@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import HeaderColumn from './HeaderColumn';
+import {COL_KEY} from './Config';
 
 const {Component} = React;
 
@@ -22,7 +23,7 @@ class Header extends Component {
         const cols = columns.filter(col => col.fixed === this.props.fixed);
         return cols.map(col => (
             <HeaderColumn
-                key={col.key}
+                key={col[COL_KEY]}
                 colData={col}
                 selectMulti={selectMulti}
                 onCheckAll={this.props.onCheckAll}

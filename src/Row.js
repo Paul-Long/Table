@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TableColumn from './Column';
+import Column from './Column';
 import SelectColumn from './SelectColumn';
-import {SELECT_KEY, TABLE_SPACE_TD} from './Config';
+import {COL_KEY, SELECT_KEY, TABLE_SPACE_TD} from './Config';
 
 const {Component} = React;
 
@@ -15,17 +15,14 @@ class Row extends Component {
             || nextProps.hovered !== this.props.hovered;
     }
 
-    handleClick = () => {
-
-    };
-
     renderColumn = (columns, arr = []) => {
         columns.forEach(col => {
-            const {key, tdSpace, children = [], width, render} = col;
-            if (key === SELECT_KEY) {
+            const {tdSpace, children = [], width, render} = col;
+            const col_key = col[COL_KEY];
+            if (col_key === SELECT_KEY) {
                 arr.push(
                     <SelectColumn
-                        key={key}
+                        key={col_key}
                         height={this.props.rowHeight}
                         selectMulti={this.props.selectMulti}
                         onSelect={this.props.onSelect}
@@ -36,10 +33,10 @@ class Row extends Component {
                     arr = this.renderColumn(children, arr);
                 } else {
                     arr.push(
-                        <TableColumn
-                            key={key}
-                            className={key === TABLE_SPACE_TD ? 'rs-table-space' : ''}
-                            columnKey={key}
+                        <Column
+                            key={col_key}
+                            className={col_key === TABLE_SPACE_TD ? 'rs-table-space' : ''}
+                            columnKey={col_key}
                             width={width}
                             data={this.props.rowData || {}}
                             height={this.props.rowHeight}

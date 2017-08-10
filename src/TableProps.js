@@ -6,6 +6,7 @@ export default class TableProps extends Component {
     constructor(props) {
         super(props);
     }
+
     static propTypes = {
         className: PropTypes.string,
         rowKey: PropTypes.string,

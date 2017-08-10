@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Checkbox} from 'antd';
-import {HEADER_HEIGHT, SELECT_KEY} from './Config';
+import {COL_KEY, HEADER_HEIGHT, SELECT_KEY} from './Config';
 
 const {Component} = React;
 
@@ -12,13 +12,6 @@ class HeaderColumn extends Component {
         this.state = {
             checked: props.checkAll
         }
-    }
-
-    static defaultProps = {
-        thSpace: 'left'
-    };
-
-    componentDidMount() {
     }
 
     componentWillReceiveProps(nextProps) {
@@ -62,18 +55,18 @@ class HeaderColumn extends Component {
         if (isLeftOne) {
             style.borderLeft = '1px solid #FFF';
         }
-        if (colData.key === SELECT_KEY) {
+        if (colData[COL_KEY] === SELECT_KEY) {
             return this.props.selectMulti ? (
                 <div className='rs-th-checkbox' style={style}>
                     <Checkbox onChange={this.handleChange} checked={this.state.checked} />
                 </div>) : '';
         }
-        const resizeEle = (<div className='rs-table-header-resize' data-id={colData.key}
-                                onMouseDown={() => this.onDown(colData.key)} />);
+        const resizeEle = (<div className='rs-table-header-resize' data-id={colData[COL_KEY]}
+                                onMouseDown={() => this.onDown(colData[COL_KEY])} />);
         const children = colData.children || [];
         const ele = (
             <div
-                key={colData.key}
+                key={colData[COL_KEY]}
                 style={style}
                 className='rs-th-item rs-th-content'
             >
@@ -84,7 +77,7 @@ class HeaderColumn extends Component {
         if (children.length > 0) {
             const arr = children.map((child, i) => this.renderTh(child, false, isLeftOne && i === 0));
             return (
-                <div key={colData.key + '-wrapper'} className='rs-th-wrapper'
+                <div key={colData[COL_KEY] + '-wrapper'} className='rs-th-wrapper'
                      style={{width: colData.width, ...colData.style}}
                 >
                     {ele}
@@ -123,7 +116,6 @@ HeaderColumn.propTypes = {
     className: PropTypes.string,
     onDown: PropTypes.func,
     style: PropTypes.object,
-    thSpace: PropTypes.oneOf(['left', 'center', 'right']),
     selectMulti: PropTypes.bool,
     onCheckAll: PropTypes.func,
     checkAll: PropTypes.bool,

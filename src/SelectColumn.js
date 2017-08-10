@@ -40,7 +40,13 @@ class SelectColumn extends Component {
             <td className='rs-td'>
                 <div
                     className='rs-td-content'
-                    style={{height, lineHeight: `${height}px`, textAlign: 'center', width: 50}}
+                    style={{
+                        height,
+                        lineHeight: `${height}px`,
+                        textAlign: 'center',
+                        justifyContent: 'center',
+                        width: 50
+                    }}
                 >
                     {selectMulti ? this.renderCheckbox() : this.renderRadio()}
                 </div>

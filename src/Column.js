@@ -33,25 +33,21 @@ class Column extends Component {
             case 'center':
                 return 'center';
         }
+        return 'center';
     };
 
     render() {
         const {className = '', height, tdSpace, width, style} = this.props;
         const css = {};
-        if (width === 0) {
-            css.display = 'none';
-        }
+        if (width === 0) css.display = 'none';
+        const contentStyle = {
+            ...style, width, height,
+            justifyContent: this.getSpace(tdSpace),
+            lineHeight: `${height}px`
+        };
         return (
             <td className={`rs-td ${className}`} style={css}>
-                <div className='rs-td-content'
-                     style={{
-                         ...style,
-                         width,
-                         height,
-                         justifyContent: this.getSpace(tdSpace),
-                         lineHeight: `${height}px`
-                     }}
-                >
+                <div className='rs-td-content' style={contentStyle}>
                     {this.renderChildren()}
                 </div>
             </td>

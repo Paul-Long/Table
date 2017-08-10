@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {findDOMNode} from 'react-dom';
 import TableProps from './TableProps';
 import TableSimple from './TableSimple';
-import {TABLE_SPACE_TD} from './Config';
+import {COL_KEY, TABLE_SPACE_TD} from './Config';
 import {getKeyData, maxBy, resetColumn, setRow, VVG} from './Func';
 
 class Manager extends TableProps {
@@ -44,6 +44,25 @@ class Manager extends TableProps {
         fixed: []
     };
 
+    setColumns = (columns = [], indexKey, width) => {
+        return columns.map(col => {
+            let children = col.children || [];
+            if (col[COL_KEY] === indexKey) {
+                col.width = Math.max(col.minWidth, width + col.width);
+                if (col.maxWidth && typeof col.maxWidth === 'number') {
+                    col.width = Math.min(col.width, col.maxWidth);
+                }
+            } else if (children.length > 0) {
+                children = this.setColumns(children, indexKey, width);
+                let w = 0;
+                children.forEach(c => w += c.width);
+                col.width = w;
+                col.children = children;
+            }
+            return Object.assign({}, col);
+        });
+    };
+
     shouldComponentUpdate(nextProps, nextState) {
         return nextProps.data !== this.props.data
             || nextState.clickRow !== this.state.clickRow
@@ -62,7 +81,57 @@ class Manager extends TableProps {
         VVG.bindEvent(ownerDocument, 'mouseup', this.drag);
         VVG.bindEvent(window, 'resize', this.onWindowResize);
     }
+    resetTableSize = (columns = []) => {
+        let center = 0, left = 0, right = 0, lastWidth = 0;
+        columns.forEach(col => {
+            if (col.fixed === 'left') {
+                left += col.width;
+            } else if (col.fixed === 'right') {
+                right += col.width;
+            } else if (col[COL_KEY] === TABLE_SPACE_TD) {
+                lastWidth = col.width;
+            } else {
+                center += col.width;
+            }
+        });
+        if (center + left + right < this.width) {
+            lastWidth = this.width - center - left - right;
+            center = center + lastWidth;
+        } else {
+            lastWidth = 0;
+        }
+        columns = columns.map(col => {
+            if (col[COL_KEY] === TABLE_SPACE_TD) {
+                col.width = lastWidth;
+                col = Object.assign({}, col);
+            }
+            return col;
+        });
+        this.tableSize.left.width = left;
+        this.tableSize.right.width = right;
+        this.tableSize.center.width = this.width - left - right;
+        this.calcScroll(center);
+        return columns;
+    };
 
+    onWindowResize = () => {
+        const self = findDOMNode(this.dom);
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+        this.timer = setTimeout(() => {
+            clearTimeout(this.timer);
+            if (self) {
+                const rect = self.getBoundingClientRect();
+                this.width = rect.width;
+                this.height = rect.height - rect.bottom;
+                this.left = rect.left;
+                this.setState({columns: this.resetTableSize(this.state.columns)});
+            }
+            this.timer = null;
+        }, 200);
+    };
     getTableProps = () => {
         const {
             rowKey, data, fixedHeader, rowHeight, selectMulti, selectEnable, headerHeight,
@@ -87,82 +156,20 @@ class Manager extends TableProps {
         }
     };
 
-    onWindowResize = () => {
-        const self = findDOMNode(this.dom);
-        if (this.timer) {
-            clearTimeout(this.timer);
-            this.timer = null;
-        }
-        this.timer = setTimeout(() => {
-            clearTimeout(this.timer);
-            if (self) {
-                const rect = self.getBoundingClientRect();
-                this.width = rect.width;
-                this.height = rect.height - rect.bottom;
-                this.left = rect.left;
-                this.setState({columns: this.resetTableSize(this.state.columns)});
-            }
-            this.timer = null;
-        }, 200);
-    };
-
-    setColumns = (columns = [], indexKey, width) => {
-        return columns.map(col => {
-            let children = col.children || [];
-            if (col.key === indexKey) {
-                col.width = Math.max(col.minWidth, width + col.width);
-                if (col.maxWidth && typeof col.maxWidth === 'number') {
-                    col.width = Math.min(col.width, col.maxWidth);
-                }
-            } else if (children.length > 0) {
-                children = this.setColumns(children, indexKey, width);
-                let w = 0;
-                children.forEach(c => w += c.width);
-                col.width = w;
-                col.children = children;
-            }
-            return Object.assign({}, col);
-        });
-    };
-
     handleColumnReady = (prop) => {
         if (!prop.width) return;
         const columns = this.setColumns(this.state.columns, prop.indexKey, prop.width);
         this.setState({columns: this.resetTableSize(columns)});
     };
 
-    resetTableSize = (columns = []) => {
-        let center = 0, left = 0, right = 0, lastWidth = 0;
-        columns.forEach(col => {
-            if (col.fixed === 'left') {
-                left += col.width;
-            } else if (col.fixed === 'right') {
-                right += col.width;
-            } else if (col.key === TABLE_SPACE_TD) {
-                lastWidth = col.width;
-            } else {
-                center += col.width;
-            }
-        });
-        if (center + left + right < this.width) {
-            lastWidth = this.width - center - left - right;
-            center = center + lastWidth;
-        } else {
-            lastWidth = 0;
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.columns !== this.props.columns) {
+            let columns = resetColumn(nextProps.columns || []);
+            this.rowSpan = maxBy(columns, 'row');
+            columns = setRow(columns, this.rowSpan);
+            this.setState({columns: this.resetTableSize(columns)});
         }
-        columns = columns.map(col => {
-            if (col.key === TABLE_SPACE_TD) {
-                col.width = lastWidth;
-                col = Object.assign({}, col);
-            }
-            return col;
-        });
-        this.tableSize.left.width = left;
-        this.tableSize.right.width = right;
-        this.tableSize.center.width = this.width - left - right;
-        this.calcScroll(center);
-        return columns;
-    };
+    }
 
     calcScroll = (center) => {
         const cTable = this.tables.center;

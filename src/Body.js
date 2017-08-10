@@ -143,11 +143,7 @@ class Body extends Component {
             return table;
         }
         return (
-            <div
-                ref={r => this.body = r}
-                className='rs-tbody'
-                style={{height, width}}
-            >
+            <div ref={r => this.body = r} className='rs-tbody' style={{height, width}}>
                 {table}
             </div>
         )

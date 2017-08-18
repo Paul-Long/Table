@@ -32,6 +32,10 @@ class Row extends Component {
                 if (children.length > 0) {
                     arr = this.renderColumn(children, arr);
                 } else {
+                    const style = {};
+                    if (col.isEdit) {
+                        style.padding = '0';
+                    }
                     arr.push(
                         <Column
                             key={col_key}
@@ -42,6 +46,7 @@ class Row extends Component {
                             height={this.props.rowHeight}
                             tdSpace={tdSpace}
                             render={render}
+                            style={style}
                         />);
                 }
             }

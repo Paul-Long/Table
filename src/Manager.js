@@ -44,6 +44,33 @@ class Manager extends TableProps {
         fixed: []
     };
 
+    onWindowResize = () => {
+        const self = findDOMNode(this.dom);
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+        this.timer = setTimeout(() => {
+            clearTimeout(this.timer);
+            if (self) {
+                const rect = self.getBoundingClientRect();
+                this.width = rect.width;
+                this.height = rect.height - rect.bottom;
+                this.left = rect.left;
+                this.setState({columns: this.resetTableSize(this.state.columns)});
+            }
+            this.timer = null;
+        }, 200);
+    };
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.data !== this.props.data
+            || nextState.clickRow !== this.state.clickRow
+            || nextState.checkAll !== this.state.checkAll
+            || nextState.hoverRow !== this.state.hoverRow
+            || nextState.selectValues !== this.state.selectValues
+            || nextState.columns !== this.state.columns;
+    }
     setColumns = (columns = [], indexKey, width) => {
         return columns.map(col => {
             let children = col.children || [];
@@ -62,25 +89,88 @@ class Manager extends TableProps {
             return Object.assign({}, col);
         });
     };
+    handleColumnReady = (prop) => {
+        if (!prop.width) return;
+        const columns = this.setColumns(this.state.columns, prop.indexKey, prop.width);
+        this.setState({columns: this.resetTableSize(columns)});
+    };
+    drag = (event) => {
+        event = VVG.getEvent(event);
+        switch (event.type) {
+            case 'mousedown':
+                const target = VVG.getTarget(event);
+                this.dragKey = target.getAttribute('data-id');
+                if (this.dragKey) {
+                    const self = findDOMNode(this.dom);
+                    const rect = self.getBoundingClientRect();
+                    this.dragging = this.widthLine;
+                    this.widthLine.style.display = 'block';
+                    this.widthLine.style.left = event.clientX - rect.left + 'px';
+                    this.dragStart = event.clientX;
+                    VVG.userSelectNone(this.dom);
+                    this.dom.style.cursor = 'col-resize';
+                }
+                break;
+            case 'mousemove':
+                if (this.dragging && this.dragKey) {
+                    const self = findDOMNode(this.dom);
+                    const rect = self.getBoundingClientRect();
+                    this.widthLine.style.left = event.clientX - rect.left + 'px';
+                }
+                break;
+            case 'mouseup':
+                if (this.dragging && this.dragKey) {
+                    this.dragging = null;
+                    VVG.userSelectNone(this.dom, '');
+                    const moveSize = event.clientX - this.dragStart;
+                    this.handleColumnReady({indexKey: this.dragKey, width: moveSize});
+                    this.dragKey = null;
+                    this.widthLine.style.display = 'none';
+                    this.dom.style.cursor = 'auto';
+                }
+                break;
+        }
+        if (this.dragging) {
+            event.preventDefault();
+        }
+    };
+    getTableProps = () => {
+        const {
+            rowKey, data, fixedHeader, rowHeight, selectMulti, selectEnable, headerHeight,
+            sortEnable, onSortEnd, getRowCount, headerResizeEnable
+        } = this.props;
+        const {selectValues, hoverRow, clickRow, checkAll, columns} = this.state;
+        const tableBaseProps = {
+            columns, data, rowKey, fixedHeader, rowHeight, getRowCount, headerResizeEnable,
+            selectMulti, selectValues, selectEnable,
+            checkAll, hoverRow, clickRow,
+            sortEnable: this.props.fixed.length === 0 && sortEnable, onSortEnd,
+            headerHeight: headerHeight * this.rowSpan,
+            height: this.height
+        };
+        return {
+            ...tableBaseProps,
+            onSelect: this.onSelect,
+            onMouseOver: this.onMouseOver,
+            onMouseOut: this.onMouseOut,
+            onClick: this.onClick,
+            onCheckAll: this.onSelectAll
+        }
+    };
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.data !== this.props.data
-            || nextState.clickRow !== this.state.clickRow
-            || nextState.checkAll !== this.state.checkAll
-            || nextState.hoverRow !== this.state.hoverRow
-            || nextState.selectValues !== this.state.selectValues
-            || nextState.columns !== this.state.columns;
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.columns !== this.props.columns) {
+            let columns = resetColumn(nextProps.columns || []);
+            this.rowSpan = maxBy(columns, 'row');
+            columns = setRow(columns, this.rowSpan);
+            this.setState({columns: this.resetTableSize(columns)});
+        }
+        if (nextProps.data !== this.props.data) {
+            const data = nextProps.data || [];
+            this.keyAll = data.map(d => getKeyData(this.props.rowKey.split('.'), d));
+        }
     }
 
-    componentDidMount() {
-        this.onWindowResize();
-        const ownerDocument = this.dom.ownerDocument;
-        VVG.onWheel(ownerDocument, this.onWheel);
-        VVG.bindEvent(ownerDocument, 'mousedown', this.drag);
-        VVG.bindEvent(ownerDocument, 'mousemove', this.drag);
-        VVG.bindEvent(ownerDocument, 'mouseup', this.drag);
-        VVG.bindEvent(window, 'resize', this.onWindowResize);
-    }
     resetTableSize = (columns = []) => {
         let center = 0, left = 0, right = 0, lastWidth = 0;
         columns.forEach(col => {
@@ -114,63 +204,6 @@ class Manager extends TableProps {
         return columns;
     };
 
-    onWindowResize = () => {
-        const self = findDOMNode(this.dom);
-        if (this.timer) {
-            clearTimeout(this.timer);
-            this.timer = null;
-        }
-        this.timer = setTimeout(() => {
-            clearTimeout(this.timer);
-            if (self) {
-                const rect = self.getBoundingClientRect();
-                this.width = rect.width;
-                this.height = rect.height - rect.bottom;
-                this.left = rect.left;
-                this.setState({columns: this.resetTableSize(this.state.columns)});
-            }
-            this.timer = null;
-        }, 200);
-    };
-    getTableProps = () => {
-        const {
-            rowKey, data, fixedHeader, rowHeight, selectMulti, selectEnable, headerHeight,
-            sortEnable, onSortEnd, getRowCount, headerResizeEnable
-        } = this.props;
-        const {selectValues, hoverRow, clickRow, checkAll, columns} = this.state;
-        const tableBaseProps = {
-            columns, data, rowKey, fixedHeader, rowHeight, getRowCount, headerResizeEnable,
-            selectMulti, selectValues, selectEnable,
-            checkAll, hoverRow, clickRow,
-            sortEnable: this.props.fixed.length === 0 && sortEnable, onSortEnd,
-            headerHeight: headerHeight * this.rowSpan,
-            height: this.height
-        };
-        return {
-            ...tableBaseProps,
-            onSelect: this.onSelect,
-            onMouseOver: this.onMouseOver,
-            onMouseOut: this.onMouseOut,
-            onClick: this.onClick,
-            onCheckAll: this.onSelectAll
-        }
-    };
-
-    handleColumnReady = (prop) => {
-        if (!prop.width) return;
-        const columns = this.setColumns(this.state.columns, prop.indexKey, prop.width);
-        this.setState({columns: this.resetTableSize(columns)});
-    };
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.columns !== this.props.columns) {
-            let columns = resetColumn(nextProps.columns || []);
-            this.rowSpan = maxBy(columns, 'row');
-            columns = setRow(columns, this.rowSpan);
-            this.setState({columns: this.resetTableSize(columns)});
-        }
-    }
-
     calcScroll = (center) => {
         const cTable = this.tables.center;
         const {onResize, fixedHeader} = this.props;
@@ -203,46 +236,15 @@ class Manager extends TableProps {
         }
     };
 
-    drag = (event) => {
-        event = VVG.getEvent(event);
-        switch (event.type) {
-            case 'mousedown':
-                const target = VVG.getTarget(event);
-                this.dragKey = target.getAttribute('data-id');
-                const self = findDOMNode(this.dom);
-                const rect = self.getBoundingClientRect();
-                if (this.dragKey) {
-                    this.dragging = this.widthLine;
-                    this.widthLine.style.display = 'block';
-                    this.widthLine.style.left = event.clientX - rect.left + 'px';
-                    this.dragStart = event.clientX;
-                    VVG.userSelectNone(this.dom);
-                    this.dom.style.cursor = 'col-resize';
-                }
-                break;
-            case 'mousemove':
-                if (this.dragging && this.dragKey) {
-                    const self = findDOMNode(this.dom);
-                    const rect = self.getBoundingClientRect();
-                    this.widthLine.style.left = event.clientX - rect.left + 'px';
-                }
-                break;
-            case 'mouseup':
-                if (this.dragging && this.dragKey) {
-                    this.dragging = null;
-                    VVG.userSelectNone(this.dom, '');
-                    const moveSize = event.clientX - this.dragStart;
-                    this.handleColumnReady({indexKey: this.dragKey, width: moveSize});
-                    this.dragKey = null;
-                    this.widthLine.style.display = 'none';
-                    this.dom.style.cursor = 'auto';
-                }
-                break;
-        }
-        if (this.dragging) {
-            event.preventDefault();
-        }
-    };
+    componentDidMount() {
+        this.onWindowResize();
+        const ownerDocument = this.dom;
+        VVG.onWheel(ownerDocument, this.onWheel);
+        VVG.bindEvent(ownerDocument, 'mousedown', this.drag);
+        VVG.bindEvent(ownerDocument, 'mousemove', this.drag);
+        VVG.bindEvent(ownerDocument, 'mouseup', this.drag);
+        VVG.bindEvent(window, 'resize', this.onWindowResize);
+    }
 
     onWheel = (e) => {
         const {fixedHeader, onWheel} = this.props;

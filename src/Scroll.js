@@ -77,7 +77,7 @@ class Scroll extends Component {
             case 'mousedown':
                 const target = VVG.getTarget(event);
                 const dataScroll = target.getAttribute('data-scroll');
-                if (dataScroll) {
+                if (dataScroll && this.mouseOver) {
                     this.dragging = target;
                     this.wrapper.style.pointerEvents = 'auto';
                     if (dataScroll === 'scrollX') {
@@ -126,21 +126,23 @@ class Scroll extends Component {
                 }
                 break;
             case 'mouseup':
-                this.dragging = null;
-                this.start = 0;
-                this.wrapper.style.pointerEvents = 'none';
-                if (this.axis === 'X') {
-                    this.scrollX.className = 'rs-scroll-x';
-                    this.scrollX.style.height = SCROLL_SIZE + 'px';
-                    this.scrollX.style.borderRadius = SCROLL_SIZE / 2 + 'px';
+                if (this.dragging) {
+                    this.dragging = null;
+                    this.start = 0;
+                    this.wrapper.style.pointerEvents = 'none';
+                    if (this.axis === 'X') {
+                        this.scrollX.className = 'rs-scroll-x';
+                        this.scrollX.style.height = SCROLL_SIZE + 'px';
+                        this.scrollX.style.borderRadius = SCROLL_SIZE / 2 + 'px';
+                    }
+                    if (this.axis === 'Y') {
+                        this.scrollY.className = 'rs-scroll-y';
+                        this.scrollY.style.width = SCROLL_SIZE + 'px';
+                        this.scrollY.style.borderRadius = SCROLL_SIZE / 2 + 'px';
+                    }
+                    this.axis = null;
+                    VVG.userSelectNone(this.wrapper, '');
                 }
-                if (this.axis === 'Y') {
-                    this.scrollY.className = 'rs-scroll-y';
-                    this.scrollY.style.width = SCROLL_SIZE + 'px';
-                    this.scrollY.style.borderRadius = SCROLL_SIZE / 2 + 'px';
-                }
-                this.axis = null;
-                VVG.userSelectNone(this.wrapper, '');
                 break;
         }
         if (this.dragging) {
@@ -148,12 +150,22 @@ class Scroll extends Component {
         }
     };
 
+    onMouseOver = () => {
+        this.mouseOver = true;
+    };
+
+    onMouseOut = () => {
+        this.mouseOver = false;
+    };
+
     render() {
         const {width, sWidth, height, sHeight, top, style} = this.props;
         const {pointerEvents} = this.state;
         const props = {
             className: 'rs-scroll-wrapper',
-            style: {pointerEvents, ...style}
+            style: {pointerEvents, ...style},
+            onMouseOver: this.onMouseOver,
+            onMouseOut: this.onMouseOut
         };
         return (
             <div ref={r => this.wrapper = r} {...props}>

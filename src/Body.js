@@ -130,10 +130,11 @@ class Body extends Component {
     };
 
     render() {
-        const {fixedHeader, width} = this.props;
+        const {fixedHeader, width, sortEnable} = this.props;
         const height = this.props.height || '100%';
         const table = (
-            <table ref={r => this.content = r} style={{width: this.props.width}}>
+            <table ref={r => this.content = r}
+                   style={{width: this.props.width, cursor: sortEnable ? 'move' : 'default'}}>
                 <tbody ref={r => this.drag = r}>
                 {this.renderTrs()}
                 </tbody>
